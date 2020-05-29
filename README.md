@@ -2,11 +2,9 @@
 ---
 dwm is an extremely fast, small, and dynamic window manager for X.
 
-
 ## Requirements
 ---
 In order to build dwm you need the Xlib header files.
-
 
 ## Installation
 ---
@@ -15,7 +13,6 @@ Edit config.mk to match your local setup (dwm is installed into the /usr/local n
 Afterwards enter the following command to build and install dwm (if necessary as root):
 
     make clean install
-
 
 ## Running dwm
 ---
@@ -35,7 +32,6 @@ In order to display status info in the bar, you can do something like this in yo
       xsetroot -name " $(date "+%a %d %b %Y %H:%M %Z") "`
       sleep 5s`
     done &`
-
 
 ## Configuration
 ---
