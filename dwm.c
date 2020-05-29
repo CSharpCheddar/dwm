@@ -92,7 +92,7 @@ struct Client {
   int basew, baseh, incw, inch, maxw, maxh, minw, minh;
   int bw, oldbw;
   unsigned int tags;
-  int isfixed, isfloating, isurgent, neverfocus, oldstate, isfullscreen;
+  int isfixed, iscentered, isfloating, isurgent, neverfocus, oldstate, isfullscreen;
   Client *next;
   Client *snext;
   Monitor *mon;
@@ -138,6 +138,7 @@ typedef struct {
   const char *instance;
   const char *title;
   unsigned int tags;
+  int iscentered;
   int isfloating;
   int monitor;
 } Rule;
@@ -292,6 +293,7 @@ applyrules(Client *c)
   XClassHint ch = { NULL, NULL };
 
   /* rule matching */
+  c->iscentered = 0;
   c->isfloating = 0;
   c->tags = 0;
   XGetClassHint(dpy, c->win, &ch);
@@ -304,6 +306,7 @@ applyrules(Client *c)
     && (!r->class || strstr(class, r->class))
     && (!r->instance || strstr(instance, r->instance)))
     {
+      c->iscentered = r->iscentered;
       c->isfloating = r->isfloating;
       c->tags |= r->tags;
       for (m = mons; m && m->num != r->monitor; m = m->next);
@@ -738,8 +741,9 @@ drawbar(Monitor *m)
 
   if ((w = m->ww - tw - x) > bh) {
     if (m->sel) {
+      int mid = (m->ww - TEXTW(m->sel->name)) / 2 - x;
       drw_setscheme(drw, scheme[m == selmon ? SchemeSel : SchemeNorm]);
-      drw_text(drw, x, 0, w, bh, lrpad / 2, m->sel->name, 0);
+      drw_text(drw, x, 0, w, bh, mid, m->sel->name, 0);
       if (m->sel->isfloating)
         drw_rect(drw, x + boxs, boxs, boxw, boxw, m->sel->isfixed, 0);
     } else {
@@ -1064,6 +1068,10 @@ manage(Window w, XWindowAttributes *wa)
   updatewindowtype(c);
   updatesizehints(c);
   updatewmhints(c);
+  if (c->iscentered) {
+    c->x = c->mon->mx + (c->mon->mw - WIDTH(c)) / 2;
+    c->y = c->mon->my + (c->mon->mh - HEIGHT(c)) / 2;
+  }
   XSelectInput(dpy, w, EnterWindowMask|FocusChangeMask|PropertyChangeMask|StructureNotifyMask);
   grabbuttons(c, 0);
   if (!c->isfloating)
@@ -1117,10 +1125,9 @@ monocle(Monitor *m)
   for (c = m->clients; c; c = c->next)
     if (ISVISIBLE(c))
       n++;
-  if (n > 0) /* override layout symbol */
-    snprintf(m->ltsymbol, sizeof m->ltsymbol, "[%d]", n);
   for (c = nexttiled(m->clients); c; c = nexttiled(c->next))
-    resize(c, m->wx, m->wy, m->ww - 2 * c->bw, m->wh - 2 * c->bw, 0);
+    resize(c, m->wx + m->gappx, m->wy + m->gappx,
+      m->ww - 2 * c->bw - 2 * m->gappx, m->wh - 2 * c->bw - 2 * m->gappx, 0);
 }
 
 void
@@ -2076,8 +2083,10 @@ updatewindowtype(Client *c)
 
   if (state == netatom[NetWMFullscreen])
     setfullscreen(c, 1);
-  if (wtype == netatom[NetWMWindowTypeDialog])
+  if (wtype == netatom[NetWMWindowTypeDialog]) {
+    c->iscentered = 1;
     c->isfloating = 1;
+  }
 }
 
 void
