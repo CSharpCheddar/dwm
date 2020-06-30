@@ -27,19 +27,28 @@ dwm: ${OBJ}
 
 clean:
 	rm -f dwm ${OBJ} dwm-${VERSION}.tar.gz
+	rm -f xsessions.tar.gz
 
 dist: clean
 	mkdir -p dwm-${VERSION}
+	mkdir -p xsessions
 	cp -R LICENSE Makefile README config.def.h config.mk\
 		dwm.1 drw.h util.h ${SRC} dwm.png transient.c dwm-${VERSION}
+	cp -R dwm.desktop xsessions
 	tar -cf dwm-${VERSION}.tar dwm-${VERSION}
+	tar -cf xsessions.tar xsessions
 	gzip dwm-${VERSION}.tar
+	gzip xsessions.tar
 	rm -rf dwm-${VERSION}
+	rm -rf xsessions
 
 install: all
 	mkdir -p ${DESTDIR}${PREFIX}/bin
+	mkdir -p /usr/share/xsessions
 	cp -f dwm ${DESTDIR}${PREFIX}/bin
+	cp -f dwm.desktop /usr/share/xsessions
 	chmod 755 ${DESTDIR}${PREFIX}/bin/dwm
+	chmod 644 /usr/share/xsessions/dwm.desktop
 	mkdir -p ${DESTDIR}${MANPREFIX}/man1
 	sed "s/VERSION/${VERSION}/g" < dwm.1 > ${DESTDIR}${MANPREFIX}/man1/dwm.1
 	chmod 644 ${DESTDIR}${MANPREFIX}/man1/dwm.1
@@ -47,5 +56,6 @@ install: all
 uninstall:
 	rm -f ${DESTDIR}${PREFIX}/bin/dwm\
 		${DESTDIR}${MANPREFIX}/man1/dwm.1
+	rm -f /usr/share/xessions/dwm.desktop
 
 .PHONY: all options clean dist install uninstall

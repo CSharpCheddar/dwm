@@ -85,7 +85,7 @@ static Key keys[] = {
   { MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
   { MODKEY,                       XK_q,      quit,           {0} },
   { MODKEY,                       XK_r,      quit,           {1} },
-  { MODKEY,                       XK_s,      spawn,          SHCMD("betterlockscreen -t 'Drink Nuka-Cola!' -l") },
+  { MODKEY,                       XK_s,      spawn,          SHCMD("betterlockscreen -t '' -l") },
   { MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
   { MODKEY,                       XK_z,      zoom,           {0} },
   { MODKEY,                       XK_0,      view,           {.ui = ~0 } },
